@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
  */
 const romaji_preset_item = 'じちふらん'.split('')
 const romaji_preset = {
-  'kunrei':  'ZTHRN'.split(''),  // 訓令式風
+  'kunrei': 'ZTHRN'.split(''),  // 訓令式風
   'hepburn': 'JCFRN'.split('')   // ヘボン式風
 }
 
@@ -49,9 +49,9 @@ const kirizma_convert = () => {
   // 入力データ
   const input_dos = document.getElementById('input-dos').value
   let input_kana = document.getElementById('input-kana').value
-  .replace(/[ａ-ｚＡ-Ｚ]/g, s => String.fromCharCode(s.charCodeAt() - 0xfee0)) // 半角化
-  .replace(/[a-z]/g, s => String.fromCharCode(s.charCodeAt() - 0x20)) // 大文字化
-  .replace(/[^あ-んA-Z＝]|[ぁぃぅぇぉゃゅょっゐゑ]/g, '') // 使用可能なひらがな以外削除して配列にする
+    .replace(/[ａ-ｚＡ-Ｚ０-９]/g, s => String.fromCharCode(s.charCodeAt() - 0xfee0)) // 半角化
+    .replace(/[a-z]/g, s => String.fromCharCode(s.charCodeAt() - 0x20)) // 大文字化
+    .replace(/[^あ-んA-Z0-9＝]|[ぁぃぅぇぉゃゅょっゐゑ]/g, '') // 使用可能なひらがな以外削除して配列にする
 
   if (mode === 'kana') {
     input_kana = input_kana.replace(/[A-Z]/g, '')
@@ -86,7 +86,7 @@ const kirizma_convert = () => {
     .filter(a => a[0].match(new RegExp('[^0-9]' + in_score_no + '_data$')))  // 指定した入力譜面番号のデータを抽出
 
   // 除外する変数名
-  const ignore = 'acolor,color,word,back,mask,arrowMotion,frzMotion'.split(',')
+  const ignore = 'acolor,color,ncolor,word,back,mask,arrowMotion,frzMotion'.split(',')
 
   // おにぎり等をそのまま残す処理
   const keep_data = {}
@@ -116,13 +116,13 @@ const kirizma_convert = () => {
   // タイミングデータ
   const frames = dos_obj.filter(
     a => a[1] !== '' &&  // 空白は無視
-    !a[0].match(         // 要らない変数を除外
-      new RegExp(ignore.map(name => name + in_score_no + '_data').join('|'))
-    )
+      !a[0].match(         // 要らない変数を除外
+        new RegExp(ignore.map(name => name + in_score_no + '_data').join('|'))
+      )
   )
-  .reduce((acc, val) => acc.concat(val[1].split(',')), []) // フレーム値を分割して1つの配列にまとめる
-  .map(s => parseInt(s))  // 文字列になってるので数値にする
-  .sort((a, b) => a - b)  // 昇順で並べ替え
+    .reduce((acc, val) => acc.concat(val[1].split(',')), []) // フレーム値を分割して1つの配列にまとめる
+    .map(s => parseInt(s))  // 文字列になってるので数値にする
+    .sort((a, b) => a - b)  // 昇順で並べ替え
 
   // キーごとのデータを生成
   const out_data = {}
@@ -146,14 +146,14 @@ const kirizma_convert = () => {
   })
 
   // 出力譜面データの生成
-  let out_str = 
+  let out_str =
     '|' + target_vars
-    .map(name => 'key' + name + out_score_no + '_data=' + out_data[name].join(','))
-    .join('|') + '|'
+      .map(name => 'key' + name + out_score_no + '_data=' + out_data[name].join(','))
+      .join('|') + '|'
   out_str +=
     '\n|' + target_vars
-    .map(name => 'frzKey' + name + out_score_no + '_data=' + out_frz_data[name].join(','))
-    .join('|') + '|'
+      .map(name => 'frzKey' + name + out_score_no + '_data=' + out_frz_data[name].join(','))
+      .join('|') + '|'
 
   // キープしたおにぎり等を戻す
   if (keep_4key) {
@@ -214,40 +214,46 @@ const kana_vars = [
 
 // ローマ字時の変数名への変換表(デフォルト)
 const romaji_table = {
-  'あ':'A', 'い':'I', 'う':'U', 'え':'E', 'お':'O',
-  'か':'K', 'き':'K', 'く':'K', 'け':'K', 'こ':'K',
-  'さ':'S', 'し':'S', 'す':'S', 'せ':'S', 'そ':'S',
-  'た':'T', 'ち':'T', 'つ':'T', 'て':'T', 'と':'T',
-  'な':'N', 'に':'N', 'ぬ':'N', 'ね':'N', 'の':'N',
-  'は':'H', 'ひ':'H', 'ふ':'H', 'へ':'H', 'ほ':'H',
-  'ま':'M', 'み':'M', 'む':'M', 'め':'M', 'も':'M',
-  'や':'Y', 'ゆ':'Y', 'よ':'Y',
-  'ら':'R', 'り':'R', 'る':'R', 'れ':'R',
-  'ろ':'R', 'わ':'W', 'を':'W', 'ん':'N',
-  'が':'G', 'ぎ':'G', 'ぐ':'G', 'げ':'G', 'ご':'G',
-  'ざ':'Z', 'じ':'Z', 'ず':'Z', 'ぜ':'Z', 'ぞ':'Z',
-  'だ':'D', 'ぢ':'D', 'づ':'D', 'で':'D', 'ど':'D',
-  'ば':'B', 'び':'B', 'ぶ':'B', 'べ':'B', 'ぼ':'B',
-  'ぱ':'P', 'ぴ':'P', 'ぷ':'P', 'ぺ':'P', 'ぽ':'P'
+  'あ': 'A', 'い': 'I', 'う': 'U', 'え': 'E', 'お': 'O',
+  'か': 'K', 'き': 'K', 'く': 'K', 'け': 'K', 'こ': 'K',
+  'さ': 'S', 'し': 'S', 'す': 'S', 'せ': 'S', 'そ': 'S',
+  'た': 'T', 'ち': 'T', 'つ': 'T', 'て': 'T', 'と': 'T',
+  'な': 'N', 'に': 'N', 'ぬ': 'N', 'ね': 'N', 'の': 'N',
+  'は': 'H', 'ひ': 'H', 'ふ': 'H', 'へ': 'H', 'ほ': 'H',
+  'ま': 'M', 'み': 'M', 'む': 'M', 'め': 'M', 'も': 'M',
+  'や': 'Y', 'ゆ': 'Y', 'よ': 'Y',
+  'ら': 'R', 'り': 'R', 'る': 'R', 'れ': 'R',
+  'ろ': 'R', 'わ': 'W', 'を': 'W', 'ん': 'N',
+  'が': 'G', 'ぎ': 'G', 'ぐ': 'G', 'げ': 'G', 'ご': 'G',
+  'ざ': 'Z', 'じ': 'Z', 'ず': 'Z', 'ぜ': 'Z', 'ぞ': 'Z',
+  'だ': 'D', 'ぢ': 'D', 'づ': 'D', 'で': 'D', 'ど': 'D',
+  'ば': 'B', 'び': 'B', 'ぶ': 'B', 'べ': 'B', 'ぼ': 'B',
+  'ぱ': 'P', 'ぴ': 'P', 'ぷ': 'P', 'ぺ': 'P', 'ぽ': 'P',
+  '0': 'ZERO', '1': 'ONE', '2': 'TWO', '3': 'THREE', '4': 'FOUR',
+  '5': 'FIVE', '6': 'SIX', '7': 'SEVEN', '8': 'EIGHT', '9': 'NINE'
 }
 
 romaji_vars.forEach(c => romaji_table[c] = c)
+romaji_vars.push('ZERO', 'ONE', 'TWO', 'THREE', 'FOUR', 'FIVE', 'SIX', 'SEVEN', 'EIGHT', 'NINE')
+kana_vars.push('ZERO', 'ONE', 'TWO', 'THREE', 'FOUR', 'FIVE', 'SIX', 'SEVEN', 'EIGHT', 'NINE')
 
 // かな入力時の変数名への変換表(デフォルト)
 const kana_table = {
-  'あ':'A', 'い':'I', 'う':'U', 'え':'E', 'お':'O',
-  'か':'KA', 'き':'KI', 'く':'KU', 'け':'KE', 'こ':'KO',
-  'さ':'SA', 'し':'SI', 'す':'SU', 'せ':'SE', 'そ':'SO',
-  'た':'TA', 'ち':'TI', 'つ':'TU', 'て':'TE', 'と':'TO',
-  'な':'NA', 'に':'NI', 'ぬ':'NU', 'ね':'NE', 'の':'NO',
-  'は':'HA', 'ひ':'HI', 'ふ':'HU', 'へ':'HE', 'ほ':'HO',
-  'ま':'MA', 'み':'MI', 'む':'MU', 'め':'ME', 'も':'MO',
-  'や':'YA', 'ゆ':'YU', 'よ':'YO',
-  'ら':'RA', 'り':'RI', 'る':'RU', 'れ':'RE', 'ろ':'RO',
-  'わ':'WA', 'を':'WO', 'ん':'NN',
-  'が':'KA', 'ぎ':'KI', 'ぐ':'KU', 'げ':'KE', 'ご':'KO',
-  'ざ':'SA', 'じ':'SI', 'ず':'SU', 'ぜ':'SE', 'ぞ':'SO',
-  'だ':'TA', 'ぢ':'TI', 'づ':'TU', 'で':'TE', 'ど':'TO',
-  'ば':'HA', 'び':'HI', 'ぶ':'HU', 'べ':'HE', 'ぼ':'HO',
-  'ぱ':'HA', 'ぴ':'HI', 'ぷ':'HU', 'ぺ':'HE', 'ぽ':'HO'
+  'あ': 'A', 'い': 'I', 'う': 'U', 'え': 'E', 'お': 'O',
+  'か': 'KA', 'き': 'KI', 'く': 'KU', 'け': 'KE', 'こ': 'KO',
+  'さ': 'SA', 'し': 'SI', 'す': 'SU', 'せ': 'SE', 'そ': 'SO',
+  'た': 'TA', 'ち': 'TI', 'つ': 'TU', 'て': 'TE', 'と': 'TO',
+  'な': 'NA', 'に': 'NI', 'ぬ': 'NU', 'ね': 'NE', 'の': 'NO',
+  'は': 'HA', 'ひ': 'HI', 'ふ': 'HU', 'へ': 'HE', 'ほ': 'HO',
+  'ま': 'MA', 'み': 'MI', 'む': 'MU', 'め': 'ME', 'も': 'MO',
+  'や': 'YA', 'ゆ': 'YU', 'よ': 'YO',
+  'ら': 'RA', 'り': 'RI', 'る': 'RU', 'れ': 'RE', 'ろ': 'RO',
+  'わ': 'WA', 'を': 'WO', 'ん': 'NN',
+  'が': 'KA', 'ぎ': 'KI', 'ぐ': 'KU', 'げ': 'KE', 'ご': 'KO',
+  'ざ': 'SA', 'じ': 'SI', 'ず': 'SU', 'ぜ': 'SE', 'ぞ': 'SO',
+  'だ': 'TA', 'ぢ': 'TI', 'づ': 'TU', 'で': 'TE', 'ど': 'TO',
+  'ば': 'HA', 'び': 'HI', 'ぶ': 'HU', 'べ': 'HE', 'ぼ': 'HO',
+  'ぱ': 'HA', 'ぴ': 'HI', 'ぷ': 'HU', 'ぺ': 'HE', 'ぽ': 'HO',
+  '0': 'ZERO', '1': 'ONE', '2': 'TWO', '3': 'THREE', '4': 'FOUR',
+  '5': 'FIVE', '6': 'SIX', '7': 'SEVEN', '8': 'EIGHT', '9': 'NINE',
 }
