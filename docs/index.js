@@ -40,7 +40,6 @@ const kirizma_convert = () => {
   // ローマ字/かな切り替え
   const mode_ = document.getElementById('option-kirizma-mode')
   const mode = mode_.options[mode_.selectedIndex].id
-  const target_vars = mode === 'kana' ? kana_vars : romaji_vars
   const convert_char = mode === 'kana' ? convert_kana : convert_romaji
 
   // フリーズ識別子
@@ -52,11 +51,6 @@ const kirizma_convert = () => {
     .replace(/[ａ-ｚＡ-Ｚ０-９]/g, s => String.fromCharCode(s.charCodeAt() - 0xfee0)) // 半角化
     .replace(/[a-z]/g, s => String.fromCharCode(s.charCodeAt() - 0x20)) // 大文字化
     .replace(/[^あ-んA-Z0-9＝]|[ぁぃぅぇぉゃゅょっゐゑ]/g, '') // 使用可能なひらがな以外削除して配列にする
-
-  if (mode === 'kana') {
-    input_kana = input_kana.replace(/[A-Z]/g, '')
-  }
-  const input_kana_arr = input_kana.split('')
 
   // ローマ字変換規則
   const use_j = document.getElementById('romaji-じ-j').checked
@@ -75,6 +69,36 @@ const kirizma_convert = () => {
   const keep_onigiri = document.getElementById('option-keep-onigiri').checked
   const keep_4key = document.getElementById('option-keep-4key').checked
   const use_sleft = document.getElementById('option-use-sleft').checked
+  const use_kana_alphabet = document.getElementById('option-use-alphabet').checked
+  const conv_vowels = {
+    A: `AA`, I: `II`, U: `UU`, E: `EE`, O: `OO`,
+  };
+
+  // 通常は入力文字から英字を外す
+  if (!(mode === `kana` && use_kana_alphabet)) {
+    input_kana = input_kana.replace(/[A-Z]/g, '')
+  }
+  const input_kana_arr = input_kana.split('')
+
+  // かなモード＆アルファベット使用時のテーブルと変数の拡張
+  kana_vars = structuredClone(base_kana_vars)
+  kana_table = structuredClone(base_kana_table)
+
+  if (mode === `kana` && use_kana_alphabet) {
+    // 1. まず先に、ひらがな用テーブルと変数に対して母音の重複変換（conv_vowels）を適用する
+    kana_vars = kana_vars.map((v) => conv_vowels[v] || v);
+
+    Object.keys(kana_table).forEach(key => {
+      kana_table[key] = conv_vowels[kana_table[key]] || kana_table[key];
+    });
+
+    // 2. その後で、変換されない（AAにならない）そのままのアルファベットをテーブルと変数に追加する
+    org_romaji_vars.forEach(c => {
+      if (!kana_table[c]) kana_table[c] = c;
+      if (!kana_vars.includes(c)) kana_vars.push(c);
+    });
+  }
+  const target_vars = mode === 'kana' ? kana_vars : romaji_vars
 
   // 譜面データの前処理
   const dos_obj = input_dos
@@ -199,7 +223,7 @@ const convert_kana = char => kana_table[char]
  */
 // 出力譜面データの変数名生成用
 const romaji_vars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')
-const kana_vars = [
+const base_kana_vars = [
   'A', 'I', 'U', 'E', 'O',
   'KA', 'KI', 'KU', 'KE', 'KO',
   'SA', 'SI', 'SU', 'SE', 'SO',
@@ -211,6 +235,7 @@ const kana_vars = [
   'RA', 'RI', 'RU', 'RE', 'RO',
   'WA', 'WO', 'NN'
 ]
+let kana_vars
 
 // ローマ字時の変数名への変換表(デフォルト)
 const romaji_table = {
@@ -233,12 +258,13 @@ const romaji_table = {
   '5': 'FIVE', '6': 'SIX', '7': 'SEVEN', '8': 'EIGHT', '9': 'NINE'
 }
 
-romaji_vars.forEach(c => romaji_table[c] = c)
+const org_romaji_vars = romaji_vars.concat()
+org_romaji_vars.forEach(c => romaji_table[c] = c)
 romaji_vars.push('ZERO', 'ONE', 'TWO', 'THREE', 'FOUR', 'FIVE', 'SIX', 'SEVEN', 'EIGHT', 'NINE')
-kana_vars.push('ZERO', 'ONE', 'TWO', 'THREE', 'FOUR', 'FIVE', 'SIX', 'SEVEN', 'EIGHT', 'NINE')
+base_kana_vars.push('ZERO', 'ONE', 'TWO', 'THREE', 'FOUR', 'FIVE', 'SIX', 'SEVEN', 'EIGHT', 'NINE')
 
 // かな入力時の変数名への変換表(デフォルト)
-const kana_table = {
+const base_kana_table = {
   'あ': 'A', 'い': 'I', 'う': 'U', 'え': 'E', 'お': 'O',
   'か': 'KA', 'き': 'KI', 'く': 'KU', 'け': 'KE', 'こ': 'KO',
   'さ': 'SA', 'し': 'SI', 'す': 'SU', 'せ': 'SE', 'そ': 'SO',
@@ -257,3 +283,4 @@ const kana_table = {
   '0': 'ZERO', '1': 'ONE', '2': 'TWO', '3': 'THREE', '4': 'FOUR',
   '5': 'FIVE', '6': 'SIX', '7': 'SEVEN', '8': 'EIGHT', '9': 'NINE',
 }
+let kana_table
