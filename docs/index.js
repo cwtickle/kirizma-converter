@@ -131,9 +131,16 @@ const kirizma_convert = () => {
   }
   const input_kana_arr = input_kana.split('')
 
-  // かなモード＆アルファベット使用時のテーブルと変数の拡張
+  // ローマ字モード、かなモード＆アルファベット使用時のテーブルと変数の拡張
+  romaji_vars = structuredClone(base_romaji_vars)
   kana_vars = structuredClone(base_kana_vars)
   kana_table = structuredClone(base_kana_table)
+
+  if (use_number) {
+    // 数字を変換対象にする場合は、ローマ字・かなの変数名に数字を追加する
+    romaji_vars.push('ZERO', 'ONE', 'TWO', 'THREE', 'FOUR', 'FIVE', 'SIX', 'SEVEN', 'EIGHT', 'NINE')
+    kana_vars.push('ZERO', 'ONE', 'TWO', 'THREE', 'FOUR', 'FIVE', 'SIX', 'SEVEN', 'EIGHT', 'NINE')
+  }
 
   if (mode === `kana` && use_kana_alphabet) {
     // 1. まず先に、ひらがな用テーブルと変数に対して母音の重複変換（conv_vowels）を適用する
@@ -144,7 +151,7 @@ const kirizma_convert = () => {
     });
 
     // 2. その後で、変換されない（AAにならない）そのままのアルファベットをテーブルと変数に追加する
-    org_romaji_vars.forEach(c => {
+    base_romaji_vars.forEach(c => {
       if (!kana_table[c]) kana_table[c] = c;
       if (!kana_vars.includes(c)) kana_vars.push(c);
     });
@@ -273,7 +280,9 @@ const convert_kana = char => kana_table[char]
  * 定数
  */
 // 出力譜面データの変数名生成用
-const romaji_vars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')
+const base_romaji_vars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')
+let romaji_vars
+
 const base_kana_vars = [
   'A', 'I', 'U', 'E', 'O',
   'KA', 'KI', 'KU', 'KE', 'KO',
@@ -308,11 +317,7 @@ const romaji_table = {
   '0': 'ZERO', '1': 'ONE', '2': 'TWO', '3': 'THREE', '4': 'FOUR',
   '5': 'FIVE', '6': 'SIX', '7': 'SEVEN', '8': 'EIGHT', '9': 'NINE'
 }
-
-const org_romaji_vars = romaji_vars.concat()
-org_romaji_vars.forEach(c => romaji_table[c] = c)
-romaji_vars.push('ZERO', 'ONE', 'TWO', 'THREE', 'FOUR', 'FIVE', 'SIX', 'SEVEN', 'EIGHT', 'NINE')
-base_kana_vars.push('ZERO', 'ONE', 'TWO', 'THREE', 'FOUR', 'FIVE', 'SIX', 'SEVEN', 'EIGHT', 'NINE')
+base_romaji_vars.forEach(c => romaji_table[c] = c)
 
 // かな入力時の変数名への変換表(デフォルト)
 const base_kana_table = {
