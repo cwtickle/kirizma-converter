@@ -8,6 +8,10 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('version').innerText = ver
   document.getElementById('convert-button').addEventListener('click', kirizma_convert)
   document.getElementById('romaji-setting-preset').addEventListener('change', romaji_peset_changed)
+  document.getElementById('option-kirizma-mode').addEventListener('change', option_kirizma_mode_changed)
+  document.getElementById('option-use-number').addEventListener('change', set_actual_keymode)
+  document.getElementById('option-use-alphabet').addEventListener('change', set_actual_keymode)
+  document.getElementById('option-use-alphabet').disabled = true
 })
 
 
@@ -30,6 +34,48 @@ const romaji_peset_changed = e => {
       })
     })
   }
+  set_actual_keymode()
+}
+
+// かな/ローマ字切り替え時にアルファベット使用チェックボックスの有効/無効を切り替える
+const option_kirizma_mode_changed = e => {
+  const selected = e.target.options[e.target.selectedIndex].id
+  const use_kana_alphabet = document.getElementById('option-use-alphabet')
+  if (selected === 'kana') {
+    use_kana_alphabet.disabled = false
+  } else {
+    use_kana_alphabet.disabled = true
+    use_kana_alphabet.checked = false
+  }
+  set_actual_keymode()
+}
+
+// 実際のキーモード表示
+const set_actual_keymode = () => {
+  const modeSelect = document.getElementById('option-kirizma-mode')
+  const mode = modeSelect.options[modeSelect.selectedIndex].id
+  const useNumber = document.getElementById('option-use-number').checked
+  const useKanaAlphabet = document.getElementById('option-use-alphabet').checked
+
+  // キーモードの算出
+  const defaultKeyMode = mode === 'romaji' ? '27k/31k' : '47k/51k'
+  let actualKeyMode = ''
+
+  if (mode === 'romaji') {
+    actualKeyMode = useNumber ? '37k/41k' : '27k/31k'
+  }
+  if (mode === 'kana') {
+    if (useKanaAlphabet) {
+      actualKeyMode = useNumber ? '83k' : '73k'
+    } else {
+      actualKeyMode = useNumber ? '57k/61k' : '47k/51k'
+    }
+  }
+
+  // DOMへの反映
+  const targetEl = document.getElementById('actual-key-mode')
+  targetEl.innerText = actualKeyMode
+  targetEl.style.fontWeight = actualKeyMode === defaultKeyMode ? 'normal' : 'bold'
 }
 
 
@@ -69,6 +115,7 @@ const kirizma_convert = () => {
   const keep_onigiri = document.getElementById('option-keep-onigiri').checked
   const keep_4key = document.getElementById('option-keep-4key').checked
   const use_sleft = document.getElementById('option-use-sleft').checked
+  const use_number = document.getElementById('option-use-number').checked
   const use_kana_alphabet = document.getElementById('option-use-alphabet').checked
   const conv_vowels = {
     A: `AA`, I: `II`, U: `UU`, E: `EE`, O: `OO`,
@@ -77,6 +124,10 @@ const kirizma_convert = () => {
   // 通常は入力文字から英字を外す
   if (!(mode === `kana` && use_kana_alphabet)) {
     input_kana = input_kana.replace(/[A-Z]/g, '')
+  }
+  // 数字が変換対象で無いときは数字を外す
+  if (!use_number) {
+    input_kana = input_kana.replace(/[0-9]/g, '')
   }
   const input_kana_arr = input_kana.split('')
 

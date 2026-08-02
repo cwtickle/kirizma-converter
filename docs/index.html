@@ -68,6 +68,7 @@
           <option id="romaji">ローマ字モード(27k/31k)</option>
           <option id="kana">かなモード(47k/51k)</option>
         </select>
+        実際のキーモード: <span id="actual-key-mode">27k/31k</span>
         <div id="option-scoreid">
           <div class="option-item-number">
             <label for="option-in-score-no">入力譜面番号</label>
@@ -91,8 +92,12 @@
           <label for="option-use-sleft">4keyの入力にsleft,sdown,sup,srightを使う(31k/51k)</label>
         </div>
         <div class="option-item-checkbox">
+          <input type="checkbox" id="option-use-number">
+          <label for="option-use-number">数字を変換対象にする</label>
+        </div>
+        <div class="option-item-checkbox">
           <input type="checkbox" id="option-use-alphabet">
-          <label for="option-use-alphabet">かな文字モードで英字も使用する</label>
+          <label for="option-use-alphabet">かなモードで英字も使用する(47k/51k拡張)</label>
         </div>
         <div id="convert-button-container">
           <input type="button" id="convert-button" value="変換する">
