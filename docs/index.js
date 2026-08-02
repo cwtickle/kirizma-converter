@@ -66,7 +66,7 @@ const set_actual_keymode = () => {
   }
   if (mode === 'kana') {
     if (useKanaAlphabet) {
-      actualKeyMode = useNumber ? '83k' : '73k'
+      actualKeyMode = useNumber ? '83k/87k' : '73k/77k'
     } else {
       actualKeyMode = useNumber ? '57k/61k' : '47k/51k'
     }
